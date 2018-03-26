@@ -13,7 +13,9 @@ trainX = trainX - repmat(mean_X, [1, size(trainX,2)]);
 valX = valX - repmat(mean_X, [1, size(valX,2)]);
 testX = testX - repmat(mean_X, [1, size(testX,2)]);
 
-
+[P, H, s1] = EvaluateClassifier(trainX, W, b);
+(s1>0), size(s1>0);
+H, size(H)
 [b, W] = InitParam(m, d, K);
 % [b_grad, W_grad] = ComputeGradients(trainX(1:300,1), trainY(:,1), W, b, lambda);
 % [b_gradn, W_gradn] = ComputeGradsNumSlow(trainX(1:300,1), trainY(:,1), W, b, lambda, 1e-5);
@@ -31,30 +33,35 @@ GDparams.n_batch=100;
 GDparams.eta=0.1; % Learning rate
 GDparams.rho=0.9; %momentum
 GDparams.decay=0.95; % Learning rate decay
-GDparams.n_epochs = 7;
+GDparams.n_epochs = 5;
 
 % Coarse search range
-% e_range = {log10(0.1), log10(0.7)};
-% l_range = {log10(10e-9), log10(10e-1)};
+e_range = {log10(0.1), log10(0.3)};
+l_range = {log10(10e-6), log10(10e-3)};
 
 % Fine search range
-% e_range = {log10(0.274), log10(0.276)};
-% l_range = {log10(1.452e-05), log10(1.453e-05)};
-% 
-% n_runs = 50;
+% e_range = {log10(0.27), log10(0.28)};
+% l_range = {log10(1.2e-05), log10(1.3e-05)};
+
+% Final search range
+% e_range = {log10(0.278), log10(0.28)};
+% l_range = {log10(1.2e-05), log10(1.3e-05)};
+
+
+n_runs = 50;
 % params = HyperParamSearch(e_range, l_range, trainX, trainY, valX, valY, valy, GDparams, n_runs);
-% 
+
 % save('storeMatrix.mat','params');
 
 % Optimal hyper param
-eta_opt = 0.275715363427836;
-lambda_opt = 1.452038656636610e-05;
-
-GDparams.n_epochs = 10;
-GDparams.eta = eta_opt;
-
-[Wstar, bstar] = MiniBatchGD(trainX, trainY, valX, valY, GDparams, W, b, lambda_opt);
-test_acc = ComputeAccuracy(testX, testy, Wstar, bstar)
+% eta_opt = 0.278759205992619;
+% lambda_opt = 1.271328525093556e-05;
+% 
+% GDparams.n_epochs = 10;
+% GDparams.eta = eta_opt;
+% 
+% [Wstar, bstar] = MiniBatchGD(trainX, trainY, valX, valY, GDparams, W, b, lambda_opt);
+% test_acc = ComputeAccuracy(testX, testy, Wstar, bstar)
 
 % sub-functions
 function params = HyperParamSearch(e_range, l_range, trainX, trainY, valX, valY, valy, GDparams, n_runs)
