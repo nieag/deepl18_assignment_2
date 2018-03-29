@@ -1,4 +1,4 @@
-clc; close all;
+clear all;
 rng(400);
 [trainX, trainY, trainy] = LoadBatch('Dataset/data_batch_1.mat');
 [valX, valY, valy] = LoadBatch('Dataset/data_batch_2.mat');
@@ -31,24 +31,25 @@ GDparams.n_batch=100;
 GDparams.eta=0.1; % Learning rate
 GDparams.rho=0.9; %momentum
 GDparams.decay=0.95; % Learning rate decay
-GDparams.n_epochs = 7;
+GDparams.n_epochs = 10;
 
 % Coarse search range
-% e_range = {log10(0.1), log10(0.7)};
+% e_range = {log10(0.1), log10(0.5)};
 % l_range = {log10(10e-9), log10(10e-1)};
 
 % Fine search range
-% e_range = {log10(0.274), log10(0.276)};
-% l_range = {log10(1.452e-05), log10(1.453e-05)};
-% 
+% e_range = {log10(0.397), log10(0.399)};
+% l_range = {log10(2.039e-08), log10(2.038e-08)};
+% %
 % n_runs = 50;
+% disp("Starting run")
 % params = HyperParamSearch(e_range, l_range, trainX, trainY, valX, valY, valy, GDparams, n_runs);
 % 
 % save('storeMatrix.mat','params');
 
 % Optimal hyper param
-eta_opt = 0.275715363427836;
-lambda_opt = 1.452038656636610e-05;
+eta_opt = 0.397244491243286;
+lambda_opt = 2.038499529402853e-08;
 
 GDparams.n_epochs = 10;
 GDparams.eta = eta_opt;
@@ -58,7 +59,6 @@ test_acc = ComputeAccuracy(testX, testy, Wstar, bstar)
 
 % sub-functions
 function params = HyperParamSearch(e_range, l_range, trainX, trainY, valX, valY, valy, GDparams, n_runs)
-
 for i=1:n_runs
     disp("Starting search run:"+ num2str(i));
     [d, N] = size(trainX);
@@ -82,7 +82,6 @@ for i=1:n_runs
     params(i, 2) = lambda;
     params(i, 3) = acc;
 end
-
 end
 
 function acc = ComputeAccuracy(X, y, W, b)
