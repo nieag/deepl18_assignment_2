@@ -27,35 +27,43 @@ testX = testX - repmat(mean_X, [1, size(testX,2)]);
 
 % Search for hyper params
 
+lambda = 0.000001;
 GDparams.n_batch=100;
-GDparams.eta=0.1; % Learning rate
+GDparams.eta=0.01; % Learning rate
 GDparams.rho=0.9; %momentum
 GDparams.decay=0.95; % Learning rate decay
-GDparams.n_epochs = 10;
+GDparams.n_epochs = 5;
+
+[Wstar, bstar, tL_saved, vL_saved] = MiniBatchGD(trainX, trainY, valX, valY, GDparams, W, b, lambda);
+
+% e_min = log10(0.0220);
+% e_max = log10(0.0235);
+% l_min = log10(9.731e-4); 
+% l_max = log10(9.739e-4); 
 
 % Coarse search range
-% e_range = {log10(0.1), log10(0.5)};
-% l_range = {log10(10e-9), log10(10e-1)};
+% e_range = {log10(0.01), log10(0.03)};
+% l_range = {log10(10e-7), log10(10e-1)};
 
 % Fine search range
-% e_range = {log10(0.397), log10(0.399)};
-% l_range = {log10(2.039e-08), log10(2.038e-08)};
+e_range = {log10(0.025), log10(0.026)};
+l_range = {log10(3.613e-05), log10(3.617e-05)};
 % %
-% n_runs = 50;
-% disp("Starting run")
-% params = HyperParamSearch(e_range, l_range, trainX, trainY, valX, valY, valy, GDparams, n_runs);
-% 
-% save('storeMatrix.mat','params');
+n_runs = 50;
+disp("Starting run")
+params = HyperParamSearch(e_range, l_range, trainX, trainY, valX, valY, valy, GDparams, n_runs);
+
+save('storeMatrix.mat','params');
 
 % Optimal hyper param
-eta_opt = 0.397244491243286;
-lambda_opt = 2.038499529402853e-08;
-
-GDparams.n_epochs = 10;
-GDparams.eta = eta_opt;
-
-[Wstar, bstar] = MiniBatchGD(trainX, trainY, valX, valY, GDparams, W, b, lambda_opt);
-test_acc = ComputeAccuracy(testX, testy, Wstar, bstar)
+% eta_opt = 0.397244491243286;
+% lambda_opt = 2.038499529402853e-08;
+% 
+% GDparams.n_epochs = 10;
+% GDparams.eta = eta_opt;
+% 
+% [Wstar, bstar] = MiniBatchGD(trainX, trainY, valX, valY, GDparams, W, b, lambda_opt);
+% test_acc = ComputeAccuracy(testX, testy, Wstar, bstar)
 
 % sub-functions
 function params = HyperParamSearch(e_range, l_range, trainX, trainY, valX, valY, valy, GDparams, n_runs)
@@ -177,8 +185,10 @@ for i=1:n_epochs
         [b_grad, W_grad] = ComputeGradients(Xbatch, Ybatch, W, b, lambda);
         
         for k=1:2
-            W{k} = W{k} - (rho*W_mom{k} + eta*W_grad{k});
-            b{k} = b{k} - (rho*b_mom{k} + eta*b_grad{k});
+            W_mom{k} = rho*W_mom{k} + eta*W_grad{k};
+            b_mom{k} = rho*b_mom{k} + eta*b_grad{k};
+            W{k} = W{k} - W_mom{k};
+            b{k} = b{k} - b_mom{k};
             %             W{k} = W{k} - (eta*W_grad{k});
             %             b{k} = b{k} - (eta*b_grad{k});
         end
