@@ -6,57 +6,68 @@ rng(400);
 
 
 % Multiple batches for final test
-[tx1, tY1, ty1] = LoadBatch('Dataset/data_batch_1.mat');
-[tx2, tY2, ty2] = LoadBatch('Dataset/data_batch_2.mat');
-[tx3, tY3, ty3] = LoadBatch('Dataset/data_batch_3.mat');
-[tx4, tY4, ty4] = LoadBatch('Dataset/data_batch_4.mat');
-[tx5, tY5, ty5] = LoadBatch('Dataset/data_batch_5.mat');
-[X_test, Y_test, y_test] = LoadBatch('Dataset/test_batch.mat');
-
-
-X_train = [tx1, tx2, tx3, tx4, tx5(:, 1:9000)];
-Y_train = [tY1, tY2, tY3, tY4, tY5(:, 1:9000)];
-y_train = [ty1, ty2, ty3, ty4, ty5(:, 1:9000)];
-
-mean_X_train = mean(X_train, 2);
-X_train = X_train - repmat(mean_X_train, [1, size(X_train,2)]);
-
-X_valid = tx5(:,9001:10000);
-X_valid = X_valid - repmat(mean_X_train, [1, size(X_valid,2)]);
-Y_valid = tY5(:,9001:10000);
-y_valid = ty5(:,9001:10000);
-
-X_test = X_test - repmat(mean_X_train, [1, size(X_test,2)]);
-
-[d, N] = size(trainX);
-[K, ~] = size(trainY);
-m = 50; % number of hidden nodes
+% [tx1, tY1, ty1] = LoadBatch('Dataset/data_batch_1.mat');
+% [tx2, tY2, ty2] = LoadBatch('Dataset/data_batch_2.mat');
+% [tx3, tY3, ty3] = LoadBatch('Dataset/data_batch_3.mat');
+% [tx4, tY4, ty4] = LoadBatch('Dataset/data_batch_4.mat');
+% [tx5, tY5, ty5] = LoadBatch('Dataset/data_batch_5.mat');
+% [X_test, Y_test, y_test] = LoadBatch('Dataset/test_batch.mat');
+% 
+% 
+% X_train = [tx1, tx2, tx3, tx4, tx5(:, 1:9000)];
+% Y_train = [tY1, tY2, tY3, tY4, tY5(:, 1:9000)];
+% y_train = [ty1, ty2, ty3, ty4, ty5(:, 1:9000)];
+% 
+% mean_X_train = mean(X_train, 2);
+% X_train = X_train - repmat(mean_X_train, [1, size(X_train,2)]);
+% 
+% X_valid = tx5(:,9001:10000);
+% X_valid = X_valid - repmat(mean_X_train, [1, size(X_valid,2)]);
+% Y_valid = tY5(:,9001:10000);
+% y_valid = ty5(:,9001:10000);
+% 
+% X_test = X_test - repmat(mean_X_train, [1, size(X_test,2)]);
+% 
+% [d, N] = size(trainX);
+% [K, ~] = size(trainY);
+% m = 50; % number of hidden nodes
 
 % mean_X = mean(trainX,2);
 % trainX = trainX - repmat(mean_X, [1, size(trainX,2)]);
 % valX = valX - repmat(mean_X, [1, size(valX,2)]);
 
 
-
+[d, N] = size(trainX);
+[K, ~] = size(trainY);
+m = 50; % number of hidden nodes
+lambda=0;
+% 
 [b, W] = InitParam(m, d, K);
 % [b_grad, W_grad] = ComputeGradients(trainX(1:300,1), trainY(:,1), W, b, lambda);
 % [b_gradn, W_gradn] = ComputeGradsNumSlow(trainX(1:300,1), trainY(:,1), W, b, lambda, 1e-5);
-%
-% w1_grad_diff = max(max(abs(W_grad{1}-W_gradn{1})))
-% w2_grad_diff = max(max(abs(W_grad{2}-W_gradn{2})))
-% b1_grad_diff = max(max(abs(b_grad{1}-b_gradn{1})))
-% b2_grad_diff = max(max(abs(b_grad{2}-b_gradn{2})))
-
-% [Wstar, bstar, tL_saved, vL_saved] = MiniBatchGD(trainX(:, 1:100), trainY(:, 1:100), valX(:, 1:100), valY(:, 1:100), GDparams, W, b, lambda);
+% [b_gradn_quick, W_gradn_quick] = ComputeGradsNum(trainX(1:300, 1), trainY(:,1), W, b, lambda, 1e-5);    
+% 
+% w1_grad_diff_slow = max(max(abs(W_grad{1}-W_gradn{1})))
+% w2_grad_diff_slow = max(max(abs(W_grad{2}-W_gradn{2})))
+% b1_grad_diff_slow = max(max(abs(b_grad{1}-b_gradn{1})))
+% b2_grad_diff_slow = max(max(abs(b_grad{2}-b_gradn{2})))
+% 
+% w1_grad_diff_quick = max(max(abs(W_grad{1}-W_gradn_quick{1})))
+% w2_grad_diff_quick = max(max(abs(W_grad{2}-W_gradn_quick{2})))
+% b1_grad_diff_quick = max(max(abs(b_grad{1}-b_gradn_quick{1})))
+% b2_grad_diff_quick = max(max(abs(b_grad{2}-b_gradn_quick{2})))
 
 % Search for hyper params
 % lambda = 0.000001;
 GDparams.n_batch=100;
-% GDparams.eta=0.01; % Learning rate
-GDparams.rho=0.9; %momentum
+GDparams.eta=0.02; % Learning rate
+GDparams.rho=0.99; %momentum
 GDparams.decay=0.95; % Learning rate decay
-GDparams.n_epochs = 10;
-
+GDparams.n_epochs = 100;
+trainLossBound = 1.8;
+tic
+[Wstar, bstar, tL_saved, vL_saved] = MiniBatchGD(trainX, trainY, valX, valY, GDparams, W, b, lambda, trainLossBound);
+toc
 % Coarse search range
 % e_range = {log10(0.008), log10(0.035)};
 % l_range = {log10(0.000001), log10(0.1)};
@@ -72,18 +83,18 @@ GDparams.n_epochs = 10;
 % save('storeMatrix.mat','params');
 
 % Optimal hyper param
-eta_opt = 0.022355689224430;
-lambda_opt = 2.562763157961167e-05;
-
-GDparams.n_epochs = 30;
-GDparams.eta = eta_opt;
-
-[Wstar, bstar, tL_saved, vL_saved] = MiniBatchGD(X_train, Y_train, X_valid, Y_valid, GDparams, W, b, lambda_opt);
-test_acc = ComputeAccuracy(X_test, y_test, Wstar, bstar)
-
-figure;
-plot(tL_saved); hold on;
-plot(vL_saved);
+% eta_opt = 0.022355689224430;
+% lambda_opt = 2.562763157961167e-05;
+% 
+% GDparams.n_epochs = 30;
+% GDparams.eta = eta_opt;
+% 
+% [Wstar, bstar, tL_saved, vL_saved] = MiniBatchGD(X_train, Y_train, X_valid, Y_valid, GDparams, W, b, lambda_opt);
+% test_acc = ComputeAccuracy(X_test, y_test, Wstar, bstar)
+% 
+% figure;
+% plot(tL_saved); hold on;
+% plot(vL_saved);
 
 % sub-functions
 function params = HyperParamSearch(e_range, l_range, trainX, trainY, valX, valY, valy, GDparams, n_runs)
@@ -180,7 +191,7 @@ b_grad = {dldb1/N, dldb2/N};
 W_grad = {dldw1/N + 2*lambda*W{1}, dldw2/N + 2*lambda*W{2}};
 end
 
-function [Wstar, bstar, tL_saved, vL_saved] = MiniBatchGD(trainX, trainY, valX, valY, GDparams, W, b, lambda)
+function [Wstar, bstar, tL_saved, vL_saved] = MiniBatchGD(trainX, trainY, valX, valY, GDparams, W, b, lambda, trainLossBound)
 n_batch = GDparams.n_batch;
 eta = GDparams.eta;
 n_epochs = GDparams.n_epochs;
@@ -190,11 +201,13 @@ decay = GDparams.decay;
 N = size(trainX,2);
 tL_saved=[];
 vL_saved=[];
-
+trainLoss = 10e6;
 W_mom = {zeros(size(W{1})), zeros(size(W{2}))};
 b_mom = {zeros(size(b{1})), zeros(size(b{2}))};
-
-for i=1:n_epochs
+disp("Original training loss: " + num2str(ComputeCost(trainX, trainY, W, b, lambda)));
+% for i=1:n_epochs
+epochs = 0;
+while (trainLoss>trainLossBound || epochs == 300)
     for j=1:N/n_batch
         j_start = (j-1)*n_batch + 1;
         j_end = j*n_batch;
@@ -209,8 +222,6 @@ for i=1:n_epochs
             b_mom{k} = rho*b_mom{k} + eta*b_grad{k};
             W{k} = W{k} - W_mom{k};
             b{k} = b{k} - b_mom{k};
-            %             W{k} = W{k} - (eta*W_grad{k});
-            %             b{k} = b{k} - (eta*b_grad{k});
         end
     end
     eta = decay*eta;
@@ -218,9 +229,12 @@ for i=1:n_epochs
     disp("Current training loss: " + num2str(trainLoss));
     tL_saved = [tL_saved;trainLoss];
     valLoss = ComputeCost(valX, valY, W, b, lambda);
+%     disp("Current validation loss: " + num2str(valLoss));
     vL_saved = [vL_saved; valLoss];
+epochs = epochs + 1;
 end
-
+disp("Final training loss: " + num2str(trainLoss));
+disp("Number of epochs: " + num2str(epochs));
 Wstar = W;
 bstar = b;
 end
