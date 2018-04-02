@@ -1,39 +1,39 @@
 clear all;
 rng(400);
 %%% One batch for training
-[trainX, trainY, trainy] = LoadBatch('Dataset/data_batch_1.mat');
-[valX, valY, valy] = LoadBatch('Dataset/data_batch_2.mat');
-[d, N] = size(trainX);
-[K, ~] = size(trainY);
-m = 50; % number of hidden nodes
-[b, W] = InitParam(m, d, K);
-mean_X = mean(trainX,2);
-trainX = trainX - repmat(mean_X, [1, size(trainX,2)]);
-valX = valX - repmat(mean_X, [1, size(valX,2)]);
+% [trainX, trainY, trainy] = LoadBatch('Dataset/data_batch_1.mat');
+% [valX, valY, valy] = LoadBatch('Dataset/data_batch_2.mat');
+% [d, N] = size(trainX);
+% [K, ~] = size(trainY);
+% m = 50; % number of hidden nodes
+% [b, W] = InitParam(m, d, K);
+% mean_X = mean(trainX,2);
+% trainX = trainX - repmat(mean_X, [1, size(trainX,2)]);
+% valX = valX - repmat(mean_X, [1, size(valX,2)]);
 %%% #################### %%%
 
 %%% Multiple batches for final test
-% [tx1, tY1, ty1] = LoadBatch('Dataset/data_batch_1.mat');
-% [tx2, tY2, ty2] = LoadBatch('Dataset/data_batch_2.mat');
-% [tx3, tY3, ty3] = LoadBatch('Dataset/data_batch_3.mat');
-% [tx4, tY4, ty4] = LoadBatch('Dataset/data_batch_4.mat');
-% [tx5, tY5, ty5] = LoadBatch('Dataset/data_batch_5.mat');
-% [X_test, Y_test, y_test] = LoadBatch('Dataset/test_batch.mat');
-% 
-% 
-% X_train = [tx1, tx2, tx3, tx4, tx5(:, 1:9000)];
-% Y_train = [tY1, tY2, tY3, tY4, tY5(:, 1:9000)];
-% y_train = [ty1, ty2, ty3, ty4, ty5(:, 1:9000)];
-% 
-% mean_X_train = mean(X_train, 2);
-% X_train = X_train - repmat(mean_X_train, [1, size(X_train,2)]);
-% 
-% X_valid = tx5(:,9001:10000);
-% X_valid = X_valid - repmat(mean_X_train, [1, size(X_valid,2)]);
-% Y_valid = tY5(:,9001:10000);
-% y_valid = ty5(:,9001:10000);
-% 
-% X_test = X_test - repmat(mean_X_train, [1, size(X_test,2)]);
+[tx1, tY1, ty1] = LoadBatch('Dataset/data_batch_1.mat');
+[tx2, tY2, ty2] = LoadBatch('Dataset/data_batch_2.mat');
+[tx3, tY3, ty3] = LoadBatch('Dataset/data_batch_3.mat');
+[tx4, tY4, ty4] = LoadBatch('Dataset/data_batch_4.mat');
+[tx5, tY5, ty5] = LoadBatch('Dataset/data_batch_5.mat');
+[X_test, Y_test, y_test] = LoadBatch('Dataset/test_batch.mat');
+
+
+X_train = [tx1, tx2, tx3, tx4, tx5(:, 1:9000)];
+Y_train = [tY1, tY2, tY3, tY4, tY5(:, 1:9000)];
+y_train = [ty1, ty2, ty3, ty4, ty5(:, 1:9000)];
+
+mean_X_train = mean(X_train, 2);
+X_train = X_train - repmat(mean_X_train, [1, size(X_train,2)]);
+
+X_valid = tx5(:,9001:10000);
+X_valid = X_valid - repmat(mean_X_train, [1, size(X_valid,2)]);
+Y_valid = tY5(:,9001:10000);
+y_valid = ty5(:,9001:10000);
+
+X_test = X_test - repmat(mean_X_train, [1, size(X_test,2)]);
 %%% #################### %%%
 
 %%% Gradient Comparison %%%
@@ -41,11 +41,11 @@ valX = valX - repmat(mean_X, [1, size(valX,2)]);
 %%% #################### %%%
 
 % Search for hyper params
-GDparams.n_batch=100;
-GDparams.rho=0.90; %momentum
-GDparams.decay=0.95; % Learning rate decay
-GDparams.n_epochs = 10;
-GDparams.activation = "ReLu";
+% GDparams.n_batch=100;
+% GDparams.rho=0.90; %momentum
+% GDparams.decay=0.95; % Learning rate decay
+% GDparams.n_epochs = 10;
+% GDparams.activation = "ReLu";
 
 % tic
 % [Wstar, bstar, tL_saved, vL_saved] = MiniBatchGD(trainX, trainY, valX, valY, GDparams, W, b, lambda, trainLossBound);
@@ -65,20 +65,71 @@ GDparams.activation = "ReLu";
 % save('storeMatrix.mat','params');
 
 %%% Optimal hyper param
+% [d, N] = size(X_train);
+% [K, ~] = size(Y_train);
+% m = 50; % number of hidden nodes
+% 
+% eta_opt = 0.023624927961652;
+% lambda_opt = 3.247136269597346e-05;
+% 
+% GDparams.n_batch=100;
+% GDparams.rho=0.90; %momentum
+% GDparams.decay=0.95; % Learning rate decay
+% GDparams.n_epochs = 30;
+% GDparams.eta = eta_opt;
+% GDparams.activation = "ReLu";
+% 
+% 
+% [b, W] = InitParam(m, d, K);
+% [Wstar, bstar, tL_saved, vL_saved] = MiniBatchGD(X_train, Y_train, X_valid, Y_valid, GDparams, W, b, lambda_opt);
+% test_acc = ComputeAccuracy(X_test, y_test, Wstar, bstar, GDparams)
+% 
+% figure;
+% plot(tL_saved); hold on;
+% plot(vL_saved);
+% title("Cross Entropy Loss for Training and Valdidation Data");
+% xlabel("Epochs");
+% ylabel("Cross entropy loss");
+% legend("Training loss", "Validation loss");
+% saveas(gcf, 'train_val_loss.png', 'png');
+%%% #################### %%%
+
+%%% Leaky ReLu testing
+% CompareGradients(trainX, trainY, GDparams)
+
+% GDparams.n_batch=100;
+% GDparams.rho=0.90; %momentum
+% GDparams.decay=0.95; % Learning rate decay
+% GDparams.n_epochs = 10;
+% GDparams.activation = "LeakReLu";
+
+% Coarse search range
+% e_range = {log10(0.008), log10(0.035)};
+% l_range = {log10(0.000001), log10(0.1)};
+
+% Fine search range
+% e_range = {log10(0.022), log10(0.03)};
+% l_range = {log10(2.55e-05), log10(2.57e-05)};
+% 
+% n_runs = 50;
+% disp("Starting run")
+% params = HyperParamSearch(e_range, l_range, trainX, trainY, valX, valY, valy, GDparams, n_runs);
+% [I, M] = max(params(:,3))
+% save('storeMatrix.mat','params');
+
 [d, N] = size(X_train);
 [K, ~] = size(Y_train);
 m = 50; % number of hidden nodes
 
-eta_opt = 0.023624927961652;
-lambda_opt = 3.247136269597346e-05;
+eta_opt = 0.1;
+lambda_opt = 1;
 
 GDparams.n_batch=100;
 GDparams.rho=0.90; %momentum
 GDparams.decay=0.95; % Learning rate decay
 GDparams.n_epochs = 30;
 GDparams.eta = eta_opt;
-GDparams.activation = "ReLu";
-
+GDparams.activation = "LeakReLu";
 
 [b, W] = InitParam(m, d, K);
 [Wstar, bstar, tL_saved, vL_saved] = MiniBatchGD(X_train, Y_train, X_valid, Y_valid, GDparams, W, b, lambda_opt);
@@ -91,40 +142,8 @@ title("Cross Entropy Loss for Training and Valdidation Data");
 xlabel("Epochs");
 ylabel("Cross entropy loss");
 legend("Training loss", "Validation loss");
-saveas(gcf, 'train_val_loss.png', 'png');
-
+saveas(gcf, "train_val_loss_leak_relu.png", "png");
 %%% #################### %%%
-
-%%% Leaky ReLu testing
-% CompareGradients(trainX, trainY)
-
-
-% [d, N] = size(X_train);
-% [K, ~] = size(Y_train);
-% m = 50; % number of hidden nodes
-% 
-% eta_opt = 0.022355689224430;
-% lambda_opt = 2.562763157961167e-05;
-% 
-% GDparams.n_batch=100;
-% GDparams.rho=0.90; %momentum
-% GDparams.decay=0.95; % Learning rate decay
-% GDparams.n_epochs = 30;
-% GDparams.eta = eta_opt;
-% GDparams.activation = "LeakReLu";
-% 
-% [b, W] = InitParam(m, d, K);
-% [Wstar, bstar, tL_saved, vL_saved] = MiniBatchGD(X_train, Y_train, X_valid, Y_valid, GDparams, W, b, lambda_opt);
-% test_acc = ComputeAccuracy(X_test, y_test, Wstar, bstar)
-% 
-% figure;
-% plot(tL_saved); hold on;
-% plot(vL_saved);
-% title("Cross Entropy Loss for Training and Valdidation Data");
-% xlabel("Epochs");
-% ylabel("Cross entropy loss");
-% legend("Training loss", "Validation loss");
-% saveas(gcf, "train_val_loss.png", "png");
 
 %%% sub-functions
 function params = HyperParamSearch(e_range, l_range, trainX, trainY, valX, valY, valy, GDparams, n_runs)
@@ -180,8 +199,8 @@ lambda=0;
 
 [b, W] = InitParam(m, d, K);
 [b_grad, W_grad] = ComputeGradients(trainX(1:300,1), trainY(:,1), W, b, lambda, GDparams);
-[b_gradn, W_gradn] = ComputeGradsNumSlow(trainX(1:300,1), trainY(:,1), W, b, lambda, 1e-5);
-[b_gradn_quick, W_gradn_quick] = ComputeGradsNum(trainX(1:300, 1), trainY(:,1), W, b, lambda, 1e-5);    
+[b_gradn, W_gradn] = ComputeGradsNumSlow(trainX(1:300,1), trainY(:,1), W, b, lambda, 1e-5, GDparams);
+[b_gradn_quick, W_gradn_quick] = ComputeGradsNum(trainX(1:300, 1), trainY(:,1), W, b, lambda, 1e-5, GDparams);    
 
 w1_grad_diff_slow = max(max(abs(W_grad{1}-W_gradn{1})))
 w2_grad_diff_slow = max(max(abs(W_grad{2}-W_gradn{2})))
@@ -227,7 +246,7 @@ function [P, H, s1] = EvaluateClassifier(X, W, b, GDparams)
 s1 = bsxfun(@plus, W{1}*X, b{1});
 if GDparams.activation=="ReLu"
     H = max(0, s1); % ReLU activation
-elseif GDparms.activation=="LeakReLu"
+elseif GDparams.activation=="LeakReLu"
     H = max(0.1*s1, s1);
 end
 s2 = bsxfun(@plus, W{2}*H, b{2});
@@ -301,7 +320,7 @@ bstar = b;
 end
 
 % numeric gradient slow
-function [grad_b, grad_W] = ComputeGradsNumSlow(X, Y, W, b, lambda, h)
+function [grad_b, grad_W] = ComputeGradsNumSlow(X, Y, W, b, lambda, h, GDparams)
 
 grad_W = cell(numel(W), 1);
 grad_b = cell(numel(b), 1);
@@ -313,11 +332,11 @@ for j=1:length(b)
         
         b_try = b;
         b_try{j}(i) = b_try{j}(i) - h;
-        c1 = ComputeCost(X, Y, W, b_try, lambda);
+        c1 = ComputeCost(X, Y, W, b_try, lambda, GDparams);
         
         b_try = b;
         b_try{j}(i) = b_try{j}(i) + h;
-        c2 = ComputeCost(X, Y, W, b_try, lambda);
+        c2 = ComputeCost(X, Y, W, b_try, lambda, GDparams);
         
         grad_b{j}(i) = (c2-c1) / (2*h);
     end
@@ -330,11 +349,11 @@ for j=1:length(W)
         
         W_try = W;
         W_try{j}(i) = W_try{j}(i) - h;
-        c1 = ComputeCost(X, Y, W_try, b, lambda);
+        c1 = ComputeCost(X, Y, W_try, b, lambda, GDparams);
         
         W_try = W;
         W_try{j}(i) = W_try{j}(i) + h;
-        c2 = ComputeCost(X, Y, W_try, b, lambda);
+        c2 = ComputeCost(X, Y, W_try, b, lambda, GDparams);
         
         grad_W{j}(i) = (c2-c1) / (2*h);
     end
@@ -342,12 +361,12 @@ end
 end
 
 %quick
-function [grad_b, grad_W] = ComputeGradsNum(X, Y, W, b, lambda, h)
+function [grad_b, grad_W] = ComputeGradsNum(X, Y, W, b, lambda, h, GDparams)
 
 grad_W = cell(numel(W), 1);
 grad_b = cell(numel(b), 1);
 
-c= ComputeCost(X, Y, W, b, lambda);
+c= ComputeCost(X, Y, W, b, lambda, GDparams);
 
 for j=1:length(b)
     grad_b{j} = zeros(size(b{j}));
@@ -355,7 +374,7 @@ for j=1:length(b)
     for i=1:length(b{j})
         b_try = b;
         b_try{j}(i) = b_try{j}(i) + h;
-        c2 = ComputeCost(X, Y, W, b_try, lambda);
+        c2 = ComputeCost(X, Y, W, b_try, lambda, GDparams);
         grad_b{j}(i) = (c2-c) / h;
     end
 end
@@ -366,7 +385,7 @@ for j=1:length(W)
     for i=1:numel(W{j})
         W_try = W;
         W_try{j}(i) = W_try{j}(i) + h;
-        c2 = ComputeCost(X, Y, W_try, b, lambda);
+        c2 = ComputeCost(X, Y, W_try, b, lambda, GDparams);
         
         grad_W{j}(i) = (c2-c) / h;
     end
