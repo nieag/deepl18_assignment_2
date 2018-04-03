@@ -65,33 +65,38 @@ X_test = X_test - repmat(mean_X_train, [1, size(X_test,2)]);
 % save('storeMatrix.mat','params');
 
 %%% Optimal hyper param
-% [d, N] = size(X_train);
-% [K, ~] = size(Y_train);
-% m = 50; % number of hidden nodes
-% 
+[d, N] = size(X_train);
+[K, ~] = size(Y_train);
+m = 50; % number of hidden nodes
+
+% From grid search
 % eta_opt = 0.023624927961652;
 % lambda_opt = 3.247136269597346e-05;
-% 
-% GDparams.n_batch=100;
-% GDparams.rho=0.90; %momentum
-% GDparams.decay=0.95; % Learning rate decay
-% GDparams.n_epochs = 30;
-% GDparams.eta = eta_opt;
-% GDparams.activation = "ReLu";
-% 
-% 
-% [b, W] = InitParam(m, d, K);
-% [Wstar, bstar, tL_saved, vL_saved] = MiniBatchGD(X_train, Y_train, X_valid, Y_valid, GDparams, W, b, lambda_opt);
-% test_acc = ComputeAccuracy(X_test, y_test, Wstar, bstar, GDparams)
-% 
-% figure;
-% plot(tL_saved); hold on;
-% plot(vL_saved);
-% title("Cross Entropy Loss for Training and Valdidation Data");
-% xlabel("Epochs");
-% ylabel("Cross entropy loss");
-% legend("Training loss", "Validation loss");
-% saveas(gcf, 'train_val_loss.png', 'png');
+
+eta_opt = 0.029522019354222;
+lambda_opt = 6.111998877125391e-06 ;
+
+GDparams.n_batch=100;
+GDparams.rho=0.90; %momentum
+GDparams.decay=0.95; % Learning rate decay
+GDparams.n_epochs = 30;
+GDparams.eta = eta_opt;
+GDparams.activation = "ReLu";
+
+
+[b, W] = InitParam(m, d, K);
+[Wstar, bstar, tL_saved, vL_saved] = MiniBatchGD(X_train, Y_train, X_valid, Y_valid, GDparams, W, b, lambda_opt);
+test_acc = ComputeAccuracy(X_test, y_test, Wstar, bstar, GDparams)
+
+figure;
+plot(tL_saved); hold on;
+plot(vL_saved);
+title("Cross Entropy Loss for Training and Valdidation Data");
+xlabel("Epochs");
+ylabel("Cross entropy loss");
+legend("Training loss", "Validation loss");
+fnameMontage = sprintf('train_val_loss_ordinary_eta_%f_lambda_%f.png', eta_opt, lambda_opt);
+saveas(gcf, fnameMontage, 'png');
 %%% #################### %%%
 
 %%% Leaky ReLu testing
@@ -108,8 +113,8 @@ X_test = X_test - repmat(mean_X_train, [1, size(X_test,2)]);
 % l_range = {log10(0.000001), log10(0.1)};
 
 % Fine search range
-% e_range = {log10(0.022), log10(0.03)};
-% l_range = {log10(2.55e-05), log10(2.57e-05)};
+% e_range = {log10(0.027), log10(0.03)};
+% l_range = {log10(1.56e-06), log10(3e-04)};
 % 
 % n_runs = 50;
 % disp("Starting run")
@@ -117,32 +122,33 @@ X_test = X_test - repmat(mean_X_train, [1, size(X_test,2)]);
 % [I, M] = max(params(:,3))
 % save('storeMatrix.mat','params');
 
-[d, N] = size(X_train);
-[K, ~] = size(Y_train);
-m = 50; % number of hidden nodes
-
-eta_opt = 0.1;
-lambda_opt = 1;
-
-GDparams.n_batch=100;
-GDparams.rho=0.90; %momentum
-GDparams.decay=0.95; % Learning rate decay
-GDparams.n_epochs = 30;
-GDparams.eta = eta_opt;
-GDparams.activation = "LeakReLu";
-
-[b, W] = InitParam(m, d, K);
-[Wstar, bstar, tL_saved, vL_saved] = MiniBatchGD(X_train, Y_train, X_valid, Y_valid, GDparams, W, b, lambda_opt);
-test_acc = ComputeAccuracy(X_test, y_test, Wstar, bstar, GDparams)
-
-figure;
-plot(tL_saved); hold on;
-plot(vL_saved);
-title("Cross Entropy Loss for Training and Valdidation Data");
-xlabel("Epochs");
-ylabel("Cross entropy loss");
-legend("Training loss", "Validation loss");
-saveas(gcf, "train_val_loss_leak_relu.png", "png");
+% [d, N] = size(X_train);
+% [K, ~] = size(Y_train);
+% m = 50; % number of hidden nodes
+% % 
+% eta_opt = 0.029461459721245;
+% lambda_opt = 5.773673941697393e-05;
+% % 
+% GDparams.n_batch=100;
+% GDparams.rho=0.90; %momentum
+% GDparams.decay=0.95; % Learning rate decay
+% GDparams.n_epochs = 30;
+% GDparams.eta = eta_opt;
+% GDparams.activation = "LeakReLu";
+% 
+% [b, W] = InitParam(m, d, K);
+% [Wstar, bstar, tL_saved, vL_saved] = MiniBatchGD(X_train, Y_train, X_valid, Y_valid, GDparams, W, b, lambda_opt);
+% test_acc = ComputeAccuracy(X_test, y_test, Wstar, bstar, GDparams)
+% 
+% figure;
+% plot(tL_saved); hold on;
+% plot(vL_saved);
+% title("Cross Entropy Loss for Training and Valdidation Data");
+% xlabel("Epochs");
+% ylabel("Cross entropy loss");
+% legend("Training loss", "Validation loss");
+% fnameMontage = sprintf('train_val_loss_leak_eta_%f_lambda_%f.png', eta_opt, lambda_opt);
+% saveas(gcf, fnameMontage, 'png');
 %%% #################### %%%
 
 %%% sub-functions
