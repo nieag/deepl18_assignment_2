@@ -1,52 +1,54 @@
 clear all;
 rng(400);
 %%% One batch for training
-% [trainX, trainY, trainy] = LoadBatch('Dataset/data_batch_1.mat');
-% [valX, valY, valy] = LoadBatch('Dataset/data_batch_2.mat');
-% [d, N] = size(trainX);
-% [K, ~] = size(trainY);
-% m = 50; % number of hidden nodes
-% [b, W] = InitParam(m, d, K);
-% mean_X = mean(trainX,2);
-% trainX = trainX - repmat(mean_X, [1, size(trainX,2)]);
-% valX = valX - repmat(mean_X, [1, size(valX,2)]);
+[trainX, trainY, trainy] = LoadBatch('Dataset/data_batch_1.mat');
+[valX, valY, valy] = LoadBatch('Dataset/data_batch_2.mat');
+[d, N] = size(trainX);
+[K, ~] = size(trainY);
+m = 50; % number of hidden nodes
+[b, W] = InitParam(m, d, K);
+mean_X = mean(trainX,2);
+trainX = trainX - repmat(mean_X, [1, size(trainX,2)]);
+valX = valX - repmat(mean_X, [1, size(valX,2)]);
 %%% #################### %%%
 
 %%% Multiple batches for final test
-[tx1, tY1, ty1] = LoadBatch('Dataset/data_batch_1.mat');
-[tx2, tY2, ty2] = LoadBatch('Dataset/data_batch_2.mat');
-[tx3, tY3, ty3] = LoadBatch('Dataset/data_batch_3.mat');
-[tx4, tY4, ty4] = LoadBatch('Dataset/data_batch_4.mat');
-[tx5, tY5, ty5] = LoadBatch('Dataset/data_batch_5.mat');
-[X_test, Y_test, y_test] = LoadBatch('Dataset/test_batch.mat');
-
-
-X_train = [tx1, tx2, tx3, tx4, tx5(:, 1:9000)];
-Y_train = [tY1, tY2, tY3, tY4, tY5(:, 1:9000)];
-y_train = [ty1, ty2, ty3, ty4, ty5(:, 1:9000)];
-
-mean_X_train = mean(X_train, 2);
-X_train = X_train - repmat(mean_X_train, [1, size(X_train,2)]);
-
-X_valid = tx5(:,9001:10000);
-X_valid = X_valid - repmat(mean_X_train, [1, size(X_valid,2)]);
-Y_valid = tY5(:,9001:10000);
-y_valid = ty5(:,9001:10000);
-
-X_test = X_test - repmat(mean_X_train, [1, size(X_test,2)]);
+% [tx1, tY1, ty1] = LoadBatch('Dataset/data_batch_1.mat');
+% [tx2, tY2, ty2] = LoadBatch('Dataset/data_batch_2.mat');
+% [tx3, tY3, ty3] = LoadBatch('Dataset/data_batch_3.mat');
+% [tx4, tY4, ty4] = LoadBatch('Dataset/data_batch_4.mat');
+% [tx5, tY5, ty5] = LoadBatch('Dataset/data_batch_5.mat');
+% [X_test, Y_test, y_test] = LoadBatch('Dataset/test_batch.mat');
+% 
+% 
+% X_train = [tx1, tx2, tx3, tx4, tx5(:, 1:9000)];
+% Y_train = [tY1, tY2, tY3, tY4, tY5(:, 1:9000)];
+% y_train = [ty1, ty2, ty3, ty4, ty5(:, 1:9000)];
+% 
+% mean_X_train = mean(X_train, 2);
+% X_train = X_train - repmat(mean_X_train, [1, size(X_train,2)]);
+% 
+% X_valid = tx5(:,9001:10000);
+% X_valid = X_valid - repmat(mean_X_train, [1, size(X_valid,2)]);
+% Y_valid = tY5(:,9001:10000);
+% y_valid = ty5(:,9001:10000);
+% 
+% X_test = X_test - repmat(mean_X_train, [1, size(X_test,2)]);
 %%% #################### %%%
 
 %%% Gradient Comparison %%%
-% CompareGradients(trainX, trainY)
+% CompareGradients(trainX, trainY, GDparams)
 %%% #################### %%%
 
 % Search for hyper params
-% GDparams.n_batch=100;
-% GDparams.rho=0.90; %momentum
-% GDparams.decay=0.95; % Learning rate decay
-% GDparams.n_epochs = 10;
-% GDparams.activation = "ReLu";
-
+GDparams.n_batch=100;
+GDparams.rho=0.90; %momentum
+GDparams.decay=0.95; % Learning rate decay
+GDparams.n_epochs = 10;
+GDparams.activation = "ReLu";
+lambda=0;
+[b_grad, W_grad] = ComputeGradients(trainX, trainY, W, b, lambda, GDparams);
+CompareGradients(trainX, trainY, GDparams)
 % tic
 % [Wstar, bstar, tL_saved, vL_saved] = MiniBatchGD(trainX, trainY, valX, valY, GDparams, W, b, lambda, trainLossBound);
 % toc
@@ -65,28 +67,28 @@ X_test = X_test - repmat(mean_X_train, [1, size(X_test,2)]);
 % save('storeMatrix.mat','params');
 
 %%% Optimal hyper param
-[d, N] = size(X_train);
-[K, ~] = size(Y_train);
-m = 50; % number of hidden nodes
+% [d, N] = size(X_train);
+% [K, ~] = size(Y_train);
+% m = 50; % number of hidden nodes
 
 % From grid search
 % eta_opt = 0.023624927961652;
 % lambda_opt = 3.247136269597346e-05;
 
-eta_opt = 0.029522019354222;
-lambda_opt = 6.111998877125391e-06 ;
+% eta_opt = 0.029522019354222;
+% lambda_opt = 6.111998877125391e-06 ;
+% 
+% GDparams.n_batch=100;
+% GDparams.rho=0.90; %momentum
+% GDparams.decay=0.95; % Learning rate decay
+% GDparams.n_epochs = 30;
+% GDparams.eta = eta_opt;
+% GDparams.activation = "ReLu";
 
-GDparams.n_batch=100;
-GDparams.rho=0.90; %momentum
-GDparams.decay=0.95; % Learning rate decay
-GDparams.n_epochs = 30;
-GDparams.eta = eta_opt;
-GDparams.activation = "ReLu";
 
-
-[b, W] = InitParam(m, d, K);
+% [b, W] = InitParam(m, d, K):
 % [Wstar, bstar, tL_saved, vL_saved] = MiniBatchGD(X_train, Y_train, X_valid, Y_valid, GDparams, W, b, lambda_opt);
-test_acc = ComputeAccuracy(X_test, y_test, Wstar, bstar, GDparams)
+% test_acc = ComputeAccuracy(X_test, y_test, Wstar, bstar, GDparams)
 
 % figure;
 % plot(tL_saved); hold on;
@@ -240,6 +242,7 @@ W2 = stdev*randn(K,m);
 W = {W1, W2};
 b = {b1, b2};
 end
+
 function J = ComputeCost(X, Y, W, b, lambda, GDparams)
 P = EvaluateClassifier(X, W, b, GDparams);
 D = size(X, 2);
