@@ -85,18 +85,18 @@ GDparams.activation = "ReLu";
 
 
 [b, W] = InitParam(m, d, K);
-% [Wstar, bstar, tL_saved, vL_saved] = MiniBatchGD(X_train, Y_train, X_valid, Y_valid, GDparams, W, b, lambda_opt);
+[Wstar, bstar, tL_saved, vL_saved] = MiniBatchGD(X_train, Y_train, X_valid, Y_valid, GDparams, W, b, lambda_opt);
 test_acc = ComputeAccuracy(X_test, y_test, Wstar, bstar, GDparams)
 
-% figure;
-% plot(tL_saved); hold on;
-% plot(vL_saved);
-% title("Cross Entropy Loss for Training and Valdidation Data");
-% xlabel("Epochs");
-% ylabel("Cross entropy loss");
-% legend("Training loss", "Validation loss");
-% fnameMontage = sprintf('train_val_loss_ordinary_eta_%f_lambda_%f.png', eta_opt, lambda_opt);
-% saveas(gcf, fnameMontage, 'png');
+figure;
+plot(tL_saved); hold on;
+plot(vL_saved);
+title("Cross Entropy Loss for Training and Valdidation Data");
+xlabel("Epochs");
+ylabel("Cross entropy loss");
+legend("Training loss", "Validation loss");
+fnameMontage = sprintf('train_val_loss_ordinary_eta_%f_lambda_%f.png', eta_opt, lambda_opt);
+saveas(gcf, fnameMontage, 'png');
 %%% #################### %%%
 
 %%% Leaky ReLu testing
@@ -299,7 +299,7 @@ disp("Original training loss: " + num2str(ComputeCost(trainX, trainY, W, b, lamb
 for i=1:n_epochs
     for j=1:N/n_batch
         j_start = (j-1)*n_batch + 1;
-        j_end = j*n_batch;
+        j_end = j*n_batch;testX
         inds = j_start:j_end;
         Xbatch = trainX(:, inds);
         Ybatch = trainY(:, inds);
