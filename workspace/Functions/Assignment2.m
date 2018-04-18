@@ -37,18 +37,18 @@ valX = valX - repmat(mean_X, [1, size(valX,2)]);
 %%% #################### %%%
 
 %%% Gradient Comparison %%%
-% CompareGradients(trainX, trainY, GDparams)
+CompareGradients(trainX, trainY)
 %%% #################### %%%
 
 % Search for hyper params
-GDparams.n_batch=100;
-GDparams.rho=0.90; %momentum
-GDparams.decay=0.95; % Learning rate decay
-GDparams.n_epochs = 10;
-GDparams.activation = "ReLu";
-lambda=0;
-[b_grad, W_grad] = ComputeGradients(trainX, trainY, W, b, lambda, GDparams);
-CompareGradients(trainX, trainY, GDparams)
+% GDparams.n_batch=100;
+% GDparams.rho=0.90; %momentum
+% GDparams.decay=0.95; % Learning rate decay
+% GDparams.n_epochs = 10;
+% GDparams.activation = "ReLu";
+% lambda=0;
+% [b_grad, W_grad] = ComputeGradients(trainX, trainY, W, b, lambda);
+% CompareGradients(trainX, trainY)
 % tic
 % [Wstar, bstar, tL_saved, vL_saved] = MiniBatchGD(trainX, trainY, valX, valY, GDparams, W, b, lambda, trainLossBound);
 % toc
@@ -70,77 +70,20 @@ CompareGradients(trainX, trainY, GDparams)
 % [d, N] = size(X_train);
 % [K, ~] = size(Y_train);
 % m = 50; % number of hidden nodes
-
-% From grid search
+% 
+% % From param search
 % eta_opt = 0.023624927961652;
 % lambda_opt = 3.247136269597346e-05;
-
-% eta_opt = 0.029522019354222;
-% lambda_opt = 6.111998877125391e-06 ;
-% 
+%  
 % GDparams.n_batch=100;
 % GDparams.rho=0.90; %momentum
 % GDparams.decay=0.95; % Learning rate decay
 % GDparams.n_epochs = 30;
 % GDparams.eta = eta_opt;
-% GDparams.activation = "ReLu";
-
-
-% [b, W] = InitParam(m, d, K):
-% [Wstar, bstar, tL_saved, vL_saved] = MiniBatchGD(X_train, Y_train, X_valid, Y_valid, GDparams, W, b, lambda_opt);
-% test_acc = ComputeAccuracy(X_test, y_test, Wstar, bstar, GDparams)
-
-% figure;
-% plot(tL_saved); hold on;
-% plot(vL_saved);
-% title("Cross Entropy Loss for Training and Valdidation Data");
-% xlabel("Epochs");
-% ylabel("Cross entropy loss");
-% legend("Training loss", "Validation loss");
-% fnameMontage = sprintf('train_val_loss_ordinary_eta_%f_lambda_%f.png', eta_opt, lambda_opt);
-% saveas(gcf, fnameMontage, 'png');
-%%% #################### %%%
-
-%%% Leaky ReLu testing
-% CompareGradients(trainX, trainY, GDparams)
-
-% GDparams.n_batch=100;
-% GDparams.rho=0.90; %momentum
-% GDparams.decay=0.95; % Learning rate decay
-% GDparams.n_epochs = 10;
-% GDparams.activation = "LeakReLu";
-
-% Coarse search range
-% e_range = {log10(0.008), log10(0.035)};
-% l_range = {log10(0.000001), log10(0.1)};
-
-% Fine search range
-% e_range = {log10(0.027), log10(0.03)};
-% l_range = {log10(1.56e-06), log10(3e-04)};
-% 
-% n_runs = 50;
-% disp("Starting run")
-% params = HyperParamSearch(e_range, l_range, trainX, trainY, valX, valY, valy, GDparams, n_runs);
-% [I, M] = max(params(:,3))
-% save('storeMatrix.mat','params');
-
-% [d, N] = size(X_train);
-% [K, ~] = size(Y_train);
-% m = 50; % number of hidden nodes
-% % 
-% eta_opt = 0.029461459721245;
-% lambda_opt = 5.773673941697393e-05;
-% % 
-% GDparams.n_batch=100;
-% GDparams.rho=0.90; %momentum
-% GDparams.decay=0.95; % Learning rate decay
-% GDparams.n_epochs = 30;
-% GDparams.eta = eta_opt;
-% GDparams.activation = "LeakReLu";
 % 
 % [b, W] = InitParam(m, d, K);
 % [Wstar, bstar, tL_saved, vL_saved] = MiniBatchGD(X_train, Y_train, X_valid, Y_valid, GDparams, W, b, lambda_opt);
-% test_acc = ComputeAccuracy(X_test, y_test, Wstar, bstar, GDparams)
+% test_acc = ComputeAccuracy(X_test, y_test, Wstar, bstar)
 % 
 % figure;
 % plot(tL_saved); hold on;
@@ -172,7 +115,7 @@ for i=1:n_runs
     
     [Wstar, bstar] = MiniBatchGD(trainX, trainY, valX, valY, GDparams, W, b, lambda);
     
-    acc = ComputeAccuracy(valX, valy, Wstar, bstar, GDparams);
+    acc = ComputeAccuracy(valX, valy, Wstar, bstar);
     disp("Accuracy: " + num2str(acc));
     params(i, 1) = eta;
     params(i, 2) = lambda;
@@ -180,8 +123,8 @@ for i=1:n_runs
 end
 end
 
-function acc = ComputeAccuracy(X, y, W, b, GDparams)
-P = EvaluateClassifier(X, W, b, GDparams);
+function acc = ComputeAccuracy(X, y, W, b)
+P = EvaluateClassifier(X, W, b);
 [~, kStar] = max(P);
 correct = kStar==y;
 acc = sum(correct)/length(correct);
@@ -199,16 +142,16 @@ for i = 1:N
 end
 end
 
-function CompareGradients(trainX, trainY, GDparams)
+function CompareGradients(trainX, trainY)
 [d, N] = size(trainX(1:300, 1));
 [K, ~] = size(trainY(:,1));
 m = 50; % number of hidden nodes
 lambda=0;
 
 [b, W] = InitParam(m, d, K);
-[b_grad, W_grad] = ComputeGradients(trainX(1:300,1), trainY(:,1), W, b, lambda, GDparams);
-[b_gradn, W_gradn] = ComputeGradsNumSlow(trainX(1:300,1), trainY(:,1), W, b, lambda, 1e-5, GDparams);
-[b_gradn_quick, W_gradn_quick] = ComputeGradsNum(trainX(1:300, 1), trainY(:,1), W, b, lambda, 1e-5, GDparams);    
+[b_grad, W_grad] = ComputeGradients(trainX(1:300,1), trainY(:,1), W, b, lambda);
+[b_gradn, W_gradn] = ComputeGradsNumSlow(trainX(1:300,1), trainY(:,1), W, b, lambda, 1e-5);
+[b_gradn_quick, W_gradn_quick] = ComputeGradsNum(trainX(1:300, 1), trainY(:,1), W, b, lambda, 1e-5);    
 
 w1_grad_diff_slow = max(max(abs(W_grad{1}-W_gradn{1})))
 w2_grad_diff_slow = max(max(abs(W_grad{2}-W_gradn{2})))
@@ -231,40 +174,24 @@ W = {W1, W2};
 b = {b1, b2};
 end
 
-function [b, W] = HeInitParam(m, d, K)
-b1 = zeros(m,1);
-b2 = zeros(K,1);
-stdevW1 = sqrt(2/d);
-stdevW2 = sqrt(2/m);
-W1 = stdevW1*randn(m,d);
-W2 = stdev*randn(K,m);
-
-W = {W1, W2};
-b = {b1, b2};
-end
-
-function J = ComputeCost(X, Y, W, b, lambda, GDparams)
-P = EvaluateClassifier(X, W, b, GDparams);
+function J = ComputeCost(X, Y, W, b, lambda)
+P = EvaluateClassifier(X, W, b);
 D = size(X, 2);
 Wij = sum(sum(W{1}.^2,1),2) + sum(sum(W{2}.^2,1),2);
 lcross = -log(sum(Y.*P));
 J = (1/D)*sum(lcross)+lambda*Wij;
 end
 
-function [P, H, s1] = EvaluateClassifier(X, W, b, GDparams)
+function [P, H, s1] = EvaluateClassifier(X, W, b)
 s1 = bsxfun(@plus, W{1}*X, b{1});
-if GDparams.activation=="ReLu"
-    H = max(0, s1); % ReLU activation
-elseif GDparams.activation=="LeakReLu"
-    H = max(0.1*s1, s1);
-end
+H = max(0, s1); % ReLU activation
 s2 = bsxfun(@plus, W{2}*H, b{2});
 P = softmax(s2);
 end
 
-function [b_grad, W_grad] = ComputeGradients(X, Y, W, b, lambda, GDparams)
+function [b_grad, W_grad] = ComputeGradients(X, Y, W, b, lambda)
 N = size(X,2);
-[P, H, s1] = EvaluateClassifier(X, W, b, GDparams);
+[P, H, s1] = EvaluateClassifier(X, W, b);
 dldb2 = zeros(size(b{2})); dldb1 = zeros(size(b{1}));
 dldw2 = zeros(size(W{2})); dldw1 = zeros(size(W{1}));
 for i=1:N
@@ -298,7 +225,7 @@ tL_saved=[];
 vL_saved=[];
 W_mom = {zeros(size(W{1})), zeros(size(W{2}))};
 b_mom = {zeros(size(b{1})), zeros(size(b{2}))};
-disp("Original training loss: " + num2str(ComputeCost(trainX, trainY, W, b, lambda, GDparams)));
+disp("Original training loss: " + num2str(ComputeCost(trainX, trainY, W, b, lambda)));
 for i=1:n_epochs
     for j=1:N/n_batch
         j_start = (j-1)*n_batch + 1;
@@ -307,7 +234,7 @@ for i=1:n_epochs
         Xbatch = trainX(:, inds);
         Ybatch = trainY(:, inds);
         
-        [b_grad, W_grad] = ComputeGradients(Xbatch, Ybatch, W, b, lambda, GDparams);
+        [b_grad, W_grad] = ComputeGradients(Xbatch, Ybatch, W, b, lambda);
         
         for k=1:2
             W_mom{k} = rho*W_mom{k} + eta*W_grad{k};
@@ -317,10 +244,10 @@ for i=1:n_epochs
         end
     end
     eta = decay*eta;
-    trainLoss = ComputeCost(trainX, trainY, W, b, lambda, GDparams);
+    trainLoss = ComputeCost(trainX, trainY, W, b, lambda);
     disp("Current training loss: " + num2str(trainLoss));
     tL_saved = [tL_saved;trainLoss];
-    valLoss = ComputeCost(valX, valY, W, b, lambda, GDparams);
+    valLoss = ComputeCost(valX, valY, W, b, lambda);
     vL_saved = [vL_saved; valLoss];
 end
 disp("Final training loss: " + num2str(trainLoss));
@@ -329,7 +256,7 @@ bstar = b;
 end
 
 % numeric gradient slow
-function [grad_b, grad_W] = ComputeGradsNumSlow(X, Y, W, b, lambda, h, GDparams)
+function [grad_b, grad_W] = ComputeGradsNumSlow(X, Y, W, b, lambda, h)
 
 grad_W = cell(numel(W), 1);
 grad_b = cell(numel(b), 1);
@@ -341,11 +268,11 @@ for j=1:length(b)
         
         b_try = b;
         b_try{j}(i) = b_try{j}(i) - h;
-        c1 = ComputeCost(X, Y, W, b_try, lambda, GDparams);
+        c1 = ComputeCost(X, Y, W, b_try, lambda);
         
         b_try = b;
         b_try{j}(i) = b_try{j}(i) + h;
-        c2 = ComputeCost(X, Y, W, b_try, lambda, GDparams);
+        c2 = ComputeCost(X, Y, W, b_try, lambda);
         
         grad_b{j}(i) = (c2-c1) / (2*h);
     end
@@ -358,11 +285,11 @@ for j=1:length(W)
         
         W_try = W;
         W_try{j}(i) = W_try{j}(i) - h;
-        c1 = ComputeCost(X, Y, W_try, b, lambda, GDparams);
+        c1 = ComputeCost(X, Y, W_try, b, lambda);
         
         W_try = W;
         W_try{j}(i) = W_try{j}(i) + h;
-        c2 = ComputeCost(X, Y, W_try, b, lambda, GDparams);
+        c2 = ComputeCost(X, Y, W_try, b, lambda);
         
         grad_W{j}(i) = (c2-c1) / (2*h);
     end
@@ -370,12 +297,12 @@ end
 end
 
 %quick
-function [grad_b, grad_W] = ComputeGradsNum(X, Y, W, b, lambda, h, GDparams)
+function [grad_b, grad_W] = ComputeGradsNum(X, Y, W, b, lambda, h)
 
 grad_W = cell(numel(W), 1);
 grad_b = cell(numel(b), 1);
 
-c= ComputeCost(X, Y, W, b, lambda, GDparams);
+c= ComputeCost(X, Y, W, b, lambda);
 
 for j=1:length(b)
     grad_b{j} = zeros(size(b{j}));
@@ -383,7 +310,7 @@ for j=1:length(b)
     for i=1:length(b{j})
         b_try = b;
         b_try{j}(i) = b_try{j}(i) + h;
-        c2 = ComputeCost(X, Y, W, b_try, lambda, GDparams);
+        c2 = ComputeCost(X, Y, W, b_try, lambda);
         grad_b{j}(i) = (c2-c) / h;
     end
 end
@@ -394,7 +321,7 @@ for j=1:length(W)
     for i=1:numel(W{j})
         W_try = W;
         W_try{j}(i) = W_try{j}(i) + h;
-        c2 = ComputeCost(X, Y, W_try, b, lambda, GDparams);
+        c2 = ComputeCost(X, Y, W_try, b, lambda);
         
         grad_W{j}(i) = (c2-c) / h;
     end
